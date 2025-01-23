@@ -3,7 +3,7 @@ import random
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-server_socket.bind(('localhost', 3003))
+server_socket.bind(('localhost', 3001))
 server_socket.listen()
 
 print("Server is running on localhost:3003")
@@ -18,23 +18,31 @@ while True:
         continue
 
     request_line = request.splitlines()[0]
-    http_method, full_path, htttp_version = request_line.split()
+    http_method, full_path, htttp_version = request_line.split(" ")
+
+    params_dict = {}
     
-    if '?' in full_path:
-        path = full_path[: full_path.index('?')]
-        params_str = full_path[full_path.index('?') + 1: ]
+    if "?" in full_path:
+        path, params_str = full_path.split("?")
         key_value_pairs = params_str.split('&')
-        params = {key: value for key, value in
-                    [pair.split('=') for pair in key_value_pairs]}
+    
+        for pair in key_value_pairs:
+            key, value = pair.split("=")
+            params_dict[key] = value
     
     else:
         path = full_path
-        params = {'rolls': '1', 'sides': '6'}
+    
+    rolls = int(params_dict.get('rolls', '1'))
+    sides = int(params_dict.get('sides', '6'))
 
-    response_body = f"{request_line}\n"
+    response_body = (f"RequestLine: {request_line}\n"
+                     f"HTTP Method: {http_method}\n"
+                     f"Path: {path}\n"
+                     f"Parameters: {params_dict}\n")
 
-    for count in range(int(params['rolls'])):
-        roll = random.randint(1, int(params['sides']))
+    for count in range(rolls):
+        roll = random.randint(1, sides)
 
         response_body += f"Roll #{count + 1}: {roll}\n"
 
