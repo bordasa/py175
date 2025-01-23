@@ -3,7 +3,7 @@ import random
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-server_socket.bind(('localhost', 3001))
+server_socket.bind(('localhost', 3003))
 server_socket.listen()
 
 print("Server is running on localhost:3003")
@@ -36,18 +36,24 @@ while True:
     rolls = int(params_dict.get('rolls', '1'))
     sides = int(params_dict.get('sides', '6'))
 
-    response_body = (f"RequestLine: {request_line}\n"
-                     f"HTTP Method: {http_method}\n"
-                     f"Path: {path}\n"
-                     f"Parameters: {params_dict}\n")
+    response_body = (f"<html><head><title>Dice Rolls</title></head><body>"
+                     f"<h1>HTTP Request Information:</h1>"
+                     f"<p><strong>Request Line:</strong> {request_line}</p>"
+                     f"<p><strong>HTTP Method:</strong> {http_method}</p>"
+                     f"<p><strong>Path:</strong> {path}</p>"
+                     f"<p><strong>Parameters:</strong> {params_dict}</p>"
+                     "<h2>Rolls:</h2>"
+                     "<ul>")
 
     for count in range(rolls):
         roll = random.randint(1, sides)
 
-        response_body += f"Roll #{count + 1}: {roll}\n"
+        response_body += f"<li>Roll #{count + 1}: {roll}</li>"
+    
+    response_body += "</ul></body></html>"
 
     response = ("HTTP/1.1 200 OK\r\n"
-               "Content-Type: text/plain\r\n"
+               "Content-Type: text/html\r\n"
                f"Content-Length: {len(response_body)}\r\n"
                "\r\n"
                f"{response_body}\n")
