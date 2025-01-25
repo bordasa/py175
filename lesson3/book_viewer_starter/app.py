@@ -7,6 +7,11 @@ def in_paragraphs(text):
 
 app.jinja_env.filters['in_paragraphs'] = in_paragraphs
 
+def highlight(text, term):
+    return text.replace(term, f'<strong>{term}</strong>')
+
+app.jinja.env.filters['highlight'] = highlight
+
 @app.before_request
 def load_contents():
     with open("book_viewer/data/toc.txt", "r") as file:

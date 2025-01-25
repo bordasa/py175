@@ -22,7 +22,7 @@
                 {% for index, text in result.paragraphs.items() %}
                 <li>
                     <a href="{{ url_for('chapter', page_num=result.number) }}#paragraph{{ index }}">
-                    {{ text | safe }}
+                    {{ text | highlight(query) | safe }}
                     </a>
                 </li>
                 {% endfor %}
