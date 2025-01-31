@@ -15,6 +15,15 @@ def error_for_todo(title):
 def find_list_by_id(list_id, lists):
     return next((lst for lst in lists if lst['id'] == list_id), None)
 
+def delete_todo_by_id(todo_id, lst):
+    lst['todos'] = [todo for todo in lst['todos'] if todo['id'] != todo_id]
+    return None
+
 def find_todo_by_id(todo_id, todos):
     for todo in todos:
         return next((todo for todo in todos if todo['id'] == todo_id), None)
+
+def mark_all_completed(lst):
+    for todo in lst['todos']:
+        todo['completed'] = True
+    return None
