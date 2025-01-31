@@ -11,7 +11,13 @@ from flask import (
 )
 
 from werkzeug.exceptions import NotFound
-from todos.utils import error_for_list_title
+
+from todos.utils import (
+    error_for_list_title,
+    error_for_todo, 
+    find_list_by_id,
+    find_todo_by_id,
+)
 
 app = Flask(__name__)
 app.secret_key='secret1'
@@ -56,15 +62,48 @@ def create_list():
 
 @app.route("/lists/<list_id>")
 def show_list(list_id):
-    target_lst = None
-    for lst in session['lists']:
-        if lst['id'] == list_id:
-            target_lst = lst['id']
-    
-    if not target_lst:
+    lst = find_list_by_id(list_id, session['lists'])
+    if not lst:
+        raise NotFound(description="List not found")
+    return render_template('list.html', lst=lst)
+
+@app.route("/lists/<list_id>/todos", methods=["POST"])
+def create_todo(list_id):
+    todo_title = request.form['todo'].strip()
+    lst = find_list_by_id(list_id, session['lists'])
+    if not lst:
         raise NotFound(description="List not found")
     
-    return render_template('list.html', lst=lst)
+    error = error_for_todo(todo_title)
+    if error:
+        flash(error, "error")
+        return render_template('list.html', lst=lst)
+    
+    lst['todos'].append({
+        'id': str(uuid4()),
+        'title': todo_title,
+        'completed': False,
+    })
+    
+    flash("The todo was added.", "success")
+    session.modified = True
+    return redirect(url_for('show_list', list_id=list_id))
+
+@app.route("/lists/<list_id>/todos/<todo_id>/toggle", methods=["POST"])
+def update_todo_status(list_id, todo_id):
+    lst = find_list_by_id(list_id, session['lists'])
+    if not lst:
+        raise NotFound(description="List not found")
+
+    todo = find_todo_by_id(todo_id, lst['todos'])
+    if not todo:
+        raise NotFound(description="Todo not found")
+
+    todo['completed'] = (request.form['completed'] == 'True')
+    
+    flash('The todo has been updated.', "success")
+    session.modified = True
+    return redirect(url_for('show_list', list_id=list_id))
 
 if __name__ == "__main__":
     app.run(debug=True, port=5003)
