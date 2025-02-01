@@ -14,7 +14,7 @@
         </header>
     </section>
     
-    <form action="{{ url_for('update_list', list_id=list.id) }}" method="post">
+    <form action="{{ url_for('update_list', list_id=lst.id) }}" method="post">
         <dl>
             <dt>
                 <label for="list_title">Enter the new list title:</label>
@@ -26,7 +26,7 @@
         </dl>
         <fieldset class="actions">
             <input type="submit" value="Save">
-            <a href="{{ urlf_for('show_list', list_id=lst.id) }}">Cancel</a>
+            <a href="{{ url_for('show_list', list_id=lst.id) }}">Cancel</a>
         </fieldset>
     </form>
 {% endblock %}
